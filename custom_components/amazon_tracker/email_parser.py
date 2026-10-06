@@ -100,7 +100,9 @@ class AmazonEmailParser:
         for domain_key in domains:
             domain_config = AMAZON_DOMAINS.get(domain_key)
             if domain_config:
-                senders = domain_config.get("senders", [domain_config["sender"]])
+                senders = domain_config.get("senders")
+                if not senders:
+                    senders = [domain_config["sender"]]
                 for sender in senders:
                     sender = sender.lower()
                     self._valid_senders.add(sender)
@@ -361,9 +363,10 @@ def build_imap_search_query(domains: list[str], since_date: date) -> str:
     for domain_key in domains:
         domain_config = AMAZON_DOMAINS.get(domain_key)
         if domain_config:
-            senders.extend(
-                domain_config.get("senders", [domain_config["sender"]])
-            )
+            domain_senders = domain_config.get("senders")
+            if not domain_senders:
+                domain_senders = [domain_config["sender"]]
+            senders.extend(domain_senders)
 
     english_months = [
         "Jan",
