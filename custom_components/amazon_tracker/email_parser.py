@@ -100,9 +100,11 @@ class AmazonEmailParser:
         for domain_key in domains:
             domain_config = AMAZON_DOMAINS.get(domain_key)
             if domain_config:
-                sender = domain_config["sender"]
-                self._valid_senders.add(sender.lower())
-                self._domain_languages[sender.lower()] = domain_config["language"]
+                senders = domain_config.get("senders", [domain_config["sender"]])
+                for sender in senders:
+                    sender = sender.lower()
+                    self._valid_senders.add(sender)
+                    self._domain_languages[sender] = domain_config["language"]
 
     def _is_valid_sender(self, from_addr: str) -> bool:
         """Check if sender is a known Amazon order-update address."""
@@ -359,7 +361,9 @@ def build_imap_search_query(domains: list[str], since_date: date) -> str:
     for domain_key in domains:
         domain_config = AMAZON_DOMAINS.get(domain_key)
         if domain_config:
-            senders.append(domain_config["sender"])
+            senders.extend(
+                domain_config.get("senders", [domain_config["sender"]])
+            )
 
     english_months = [
         "Jan",

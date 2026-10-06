@@ -36,7 +36,11 @@ AMAZON_DOMAINS = {
     },
     "amazon.de": {
         "name": "Amazon.de (Germany)",
-        "sender": "order-update@amazon.de",
+       "senders": [
+            "order-update@amazon.de",
+            "bestellbestaetigung@amazon.de",
+            "versandbestaetigung@amazon.de",
+        ],
         "language": "de",
     },
     "amazon.fr": {
