@@ -8,6 +8,7 @@ from typing import Any
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers import selector
 import voluptuous as vol
 
 from .const import (
@@ -115,9 +116,18 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="amazon",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_AMAZON_DOMAINS, default=[DEFAULT_DOMAIN]): vol.All(
-                        [vol.In(domain_options)],
-                        vol.Length(min=1),
+                    vol.Required(
+                        CONF_AMAZON_DOMAINS,
+                        default=[DEFAULT_DOMAIN],
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[
+                                selector.SelectOptionDict(value=domain, label=name)
+                                for domain, name in domain_options.items()
+                            ],
+                            multiple=True,
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
                     ),
                     vol.Required(
                         CONF_TRACKING_DURATION,
@@ -167,9 +177,18 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             step_id="init",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_AMAZON_DOMAINS, default=current_domains): vol.All(
-                        [vol.In(domain_options)],
-                        vol.Length(min=1),
+                    vol.Required(
+                        CONF_AMAZON_DOMAINS,
+                        default=current_domains,
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[
+                                selector.SelectOptionDict(value=domain, label=name)
+                                for domain, name in domain_options.items()
+                            ],
+                            multiple=True,
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
                     ),
                     vol.Required(CONF_TRACKING_DURATION, default=current_tracking): vol.All(
                         int, vol.Range(min=1, max=90)
